@@ -64,6 +64,7 @@ systemctl daemon-reload
 systemctl enable rustdesk
 systemctl start rustdesk
 update-desktop-database
+gtk-update-icon-cache -f -t /usr/share/icons/hicolor >/dev/null 2>&1 || true
 
 %preun
 case "$1" in

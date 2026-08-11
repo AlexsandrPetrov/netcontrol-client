@@ -11,6 +11,7 @@ const double kDesktopRemoteTabBarHeight = 28.0;
 const int kInvalidWindowId = -1;
 const int kMainWindowId = 0;
 
+const kSourceCodeUrl = 'https://github.com/PLACEHOLDER_ORG/PLACEHOLDER_REPO';
 const kAllDisplayValue = -1;
 
 const kKeyLegacyMode = 'legacy';

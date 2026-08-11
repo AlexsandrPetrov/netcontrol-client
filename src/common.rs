@@ -2031,7 +2031,12 @@ pub fn create_symmetric_key_msg(their_pk_b: [u8; 32]) -> (Bytes, Bytes, secretbo
 
 #[inline]
 pub fn using_public_server() -> bool {
-    crate::get_custom_rendezvous_server(get_option("custom-rendezvous-server")).is_empty()
+    // Ребрендинг: этот билд никогда не использует публичный сервер RustDesk -
+    // адрес сервера зашит в RENDEZVOUS_SERVERS/RS_PUB_KEY (config.rs), а не
+    // задаётся через опцию custom-rendezvous-server, которую проверяла
+    // исходная логика - отсюда ложное предложение "настройте свой сервер"
+    // со ссылкой на rustdesk.com/pricing даже при уже настроенном сервере.
+    false
 }
 
 pub struct ThrottledInterval {

@@ -7,6 +7,11 @@ if [ "$1" = configure ]; then
 	INITSYS=$(ls -al /proc/1/exe | awk -F' ' '{print $NF}' | awk -F'/' '{print $NF}')
 	ln -f -s /usr/share/rustdesk/rustdesk /usr/bin/rustdesk
 
+	# Ребрендинг - без этого система тем GTK кэширует СТАРУЮ иконку даже
+	# после подмены файла (иконка в заголовке окна берётся именно из
+	# gtk-кэша, см. flutter/linux/my_application.cc - gtk_icon_theme_load_icon).
+	gtk-update-icon-cache -f -t /usr/share/icons/hicolor >/dev/null 2>&1 || true
+
 	if [ "systemd" == "$INITSYS" ]; then
 
 		if [ -e /etc/systemd/system/rustdesk.service ]; then

@@ -56,3 +56,9 @@ vcpkg_installed
 flutter/lib/generated_plugin_registrant.dart
 libsciter.dylib
 flutter/web/
+
+# Локальные настройки сборки (реальные адрес и ключ relay-сервера) -
+# подставляются перед сборкой скриптом brand/apply_local_server.sh, аналог
+# local_settings.py в основном Django-проекте. В публикуемом репозитории
+# лежат только плейсхолдеры.
+/local/
