@@ -1,10 +1,10 @@
-Name:       rustdesk
+Name:       netcontrol
 Version:    1.4.9
 Release:    0
-Summary:    RPM package
-License:    GPL-3.0
-URL:        https://rustdesk.com
-Vendor:     rustdesk <info@rustdesk.com>
+Summary:    Удалённый доступ NetControl
+License:    AGPL-3.0
+URL:        https://tehalex.ru
+Vendor:     NetControl
 Requires:   gtk3 libxcb libXfixes alsa-lib libva pam gstreamer1-plugins-base
 Recommends: libayatana-appindicator-gtk3 libxdo
 Provides:   libdesktop_drop_plugin.so()(64bit), libdesktop_multi_window_plugin.so()(64bit), libfile_selector_linux_plugin.so()(64bit), libflutter_custom_cursor_plugin.so()(64bit), libflutter_linux_gtk.so()(64bit), libscreen_retriever_plugin.so()(64bit), libtray_manager_plugin.so()(64bit), liburl_launcher_linux_plugin.so()(64bit), libwindow_manager_plugin.so()(64bit), libwindow_size_plugin.so()(64bit), libtexture_rgba_renderer_plugin.so()(64bit)
@@ -12,7 +12,7 @@ Provides:   libdesktop_drop_plugin.so()(64bit), libdesktop_multi_window_plugin.s
 # https://docs.fedoraproject.org/en-US/packaging-guidelines/Scriptlets/
 
 %description
-The best open-source remote desktop client software, written in Rust.
+Клиент удалённого доступа NetControl.
 
 %prep
 # we have no source, so nothing here
@@ -24,21 +24,21 @@ The best open-source remote desktop client software, written in Rust.
 
 %install
 
-mkdir -p "%{buildroot}/usr/share/rustdesk" && cp -r ${HBB}/flutter/build/linux/x64/release/bundle/* -t "%{buildroot}/usr/share/rustdesk"
+mkdir -p "%{buildroot}/usr/share/netcontrol" && cp -r ${HBB}/flutter/build/linux/x64/release/bundle/* -t "%{buildroot}/usr/share/netcontrol"
 mkdir -p "%{buildroot}/usr/bin"
-install -Dm 644 $HBB/res/rustdesk.service -t "%{buildroot}/usr/share/rustdesk/files"
-install -Dm 644 $HBB/res/rustdesk.desktop -t "%{buildroot}/usr/share/rustdesk/files"
-install -Dm 644 $HBB/res/rustdesk-link.desktop -t "%{buildroot}/usr/share/rustdesk/files"
-install -Dm 644 $HBB/res/128x128@2x.png "%{buildroot}/usr/share/icons/hicolor/256x256/apps/rustdesk.png"
-install -Dm 644 $HBB/res/scalable.svg "%{buildroot}/usr/share/icons/hicolor/scalable/apps/rustdesk.svg"
+install -Dm 644 $HBB/res/netcontrol.service -t "%{buildroot}/usr/share/netcontrol/files"
+install -Dm 644 $HBB/res/netcontrol.desktop -t "%{buildroot}/usr/share/netcontrol/files"
+install -Dm 644 $HBB/res/netcontrol-link.desktop -t "%{buildroot}/usr/share/netcontrol/files"
+install -Dm 644 $HBB/res/128x128@2x.png "%{buildroot}/usr/share/icons/hicolor/256x256/apps/netcontrol.png"
+install -Dm 644 $HBB/res/scalable.svg "%{buildroot}/usr/share/icons/hicolor/scalable/apps/netcontrol.svg"
 
 %files
-/usr/share/rustdesk/*
-/usr/share/rustdesk/files/rustdesk.service
-/usr/share/icons/hicolor/256x256/apps/rustdesk.png
-/usr/share/icons/hicolor/scalable/apps/rustdesk.svg
-/usr/share/rustdesk/files/rustdesk.desktop
-/usr/share/rustdesk/files/rustdesk-link.desktop
+/usr/share/netcontrol/*
+/usr/share/netcontrol/files/netcontrol.service
+/usr/share/icons/hicolor/256x256/apps/netcontrol.png
+/usr/share/icons/hicolor/scalable/apps/netcontrol.svg
+/usr/share/netcontrol/files/netcontrol.desktop
+/usr/share/netcontrol/files/netcontrol-link.desktop
 
 %changelog
 # let's skip this for now
@@ -51,18 +51,18 @@ case "$1" in
   ;;
   2)
     # for upgrade
-    systemctl stop rustdesk || true
+    systemctl stop netcontrol || true
   ;;
 esac
 
 %post
-cp /usr/share/rustdesk/files/rustdesk.service /etc/systemd/system/rustdesk.service
-cp /usr/share/rustdesk/files/rustdesk.desktop /usr/share/applications/
-cp /usr/share/rustdesk/files/rustdesk-link.desktop /usr/share/applications/
-ln -sf /usr/share/rustdesk/rustdesk /usr/bin/rustdesk
+cp /usr/share/netcontrol/files/netcontrol.service /etc/systemd/system/netcontrol.service
+cp /usr/share/netcontrol/files/netcontrol.desktop /usr/share/applications/
+cp /usr/share/netcontrol/files/netcontrol-link.desktop /usr/share/applications/
+ln -sf /usr/share/netcontrol/netcontrol /usr/bin/netcontrol
 systemctl daemon-reload
-systemctl enable rustdesk
-systemctl start rustdesk
+systemctl enable netcontrol
+systemctl start netcontrol
 update-desktop-database
 gtk-update-icon-cache -f -t /usr/share/icons/hicolor >/dev/null 2>&1 || true
 
@@ -70,9 +70,9 @@ gtk-update-icon-cache -f -t /usr/share/icons/hicolor >/dev/null 2>&1 || true
 case "$1" in
   0)
     # for uninstall
-    systemctl stop rustdesk || true
-    systemctl disable rustdesk || true
-    rm /etc/systemd/system/rustdesk.service || true
+    systemctl stop netcontrol || true
+    systemctl disable netcontrol || true
+    rm /etc/systemd/system/netcontrol.service || true
   ;;
   1)
     # for upgrade
@@ -83,17 +83,17 @@ esac
 case "$1" in
   0)
     # for uninstall
-    rm /usr/bin/rustdesk || true
-    rmdir /usr/lib/rustdesk || true
-    rmdir /usr/local/rustdesk || true
-    rmdir /usr/share/rustdesk || true
-    rm /usr/share/applications/rustdesk.desktop || true
-    rm /usr/share/applications/rustdesk-link.desktop || true
+    rm /usr/bin/netcontrol || true
+    rmdir /usr/lib/netcontrol || true
+    rmdir /usr/local/netcontrol || true
+    rmdir /usr/share/netcontrol || true
+    rm /usr/share/applications/netcontrol.desktop || true
+    rm /usr/share/applications/netcontrol-link.desktop || true
     update-desktop-database
   ;;
   1)
     # for upgrade
-    rmdir /usr/lib/rustdesk || true
-    rmdir /usr/local/rustdesk || true
+    rmdir /usr/lib/netcontrol || true
+    rmdir /usr/local/netcontrol || true
   ;;
 esac

@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=NetControl
+NoDisplay=true
+# Схема rustdesk:// оставлена намеренно: ссылки на подключение генерирует
+# админка rustdesk-api, и она отдаёт именно её. Разбор ссылки в клиенте
+# на имя схемы не смотрит (см. flutter/lib/common.dart - там читаются только
+# authority и path), поэтому обе схемы работают одинаково.
+MimeType=x-scheme-handler/netcontrol;x-scheme-handler/rustdesk;
+TryExec=netcontrol
+Exec=netcontrol %u
+Icon=netcontrol
+Terminal=false
+Type=Application
+StartupNotify=false
+StartupWMClass=netcontrol
