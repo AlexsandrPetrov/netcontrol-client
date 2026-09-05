@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=МояИнфраструктура
+Name=NetControl
 GenericName=Remote Desktop
 Comment=Remote Desktop
 Exec=rustdesk %u
