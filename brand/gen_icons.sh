@@ -43,6 +43,17 @@ img.save(app_ico, sizes=[(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128,
 img.save(tray_ico, sizes=[(16, 16), (24, 24), (32, 32), (48, 48)])
 PY
 
+echo "==> логотип в боковой панели клиента"
+# flutter/assets/logo_*.png - тот логотип, который виден в самом окне
+# программы. Он НЕ берётся из icon.svg, это отдельные файлы, и upstream
+# глушит все *png в .gitignore - поэтому в репозиторий они попадают только
+# через git add -f. Забыть про них легко: окно останется со старым знаком,
+# хотя иконка в меню уже новая.
+render "$BRAND/icon.svg" 120 "$TMP/logo_120.png"
+cp "$TMP/logo_120.png" "$BRAND/logo_120.png"
+cp "$TMP/logo_120.png" "$REPO_ROOT/flutter/assets/logo_dark.png"
+cp "$TMP/logo_120.png" "$REPO_ROOT/flutter/assets/logo_light.png"
+
 echo "==> иконки трея (одноцветные силуэты)"
 # dark-вариант рисуется тёмным (для светлой строки меню), light - белым.
 sed 's/TRAYCOLOR/#000000/g' "$BRAND/tray.svg" > "$TMP/tray-dark.svg"
