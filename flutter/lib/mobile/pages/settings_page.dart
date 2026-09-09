@@ -9,7 +9,6 @@ import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../common.dart';
 import '../../common/widgets/dialog.dart';
@@ -36,7 +35,6 @@ class SettingsPage extends StatefulWidget implements PageShape {
   State<SettingsPage> createState() => _SettingsState();
 }
 
-const url = 'https://rustdesk.com/';
 
 enum KeepScreenOn {
   never,
@@ -953,18 +951,11 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
         SettingsSection(
           title: Text(translate("About")),
           tiles: [
+            // Ребрендинг: строка версии больше не ведёт на rustdesk.com -
+            // ссылка на чужой сайт в нашем клиенте не нужна, версия просто
+            // показывается.
             SettingsTile(
-                onPressed: (context) async {
-                  await launchUrl(Uri.parse(url));
-                },
                 title: Text(translate("Version: ") + version),
-                value: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8),
-                  child: Text('rustdesk.com',
-                      style: TextStyle(
-                        decoration: TextDecoration.underline,
-                      )),
-                ),
                 leading: Icon(Icons.info)),
             SettingsTile(
                 title: Text(translate("Build Date")),
@@ -982,12 +973,10 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
                     child: Text(_fingerprint),
                   ),
                   leading: Icon(Icons.fingerprint)),
-            SettingsTile(
-              title: Text(translate("Privacy Statement")),
-              onPressed: (context) =>
-                  launchUrlString('https://rustdesk.com/privacy.html'),
-              leading: Icon(Icons.privacy_tip),
-            )
+            // Ребрендинг: пункт "Политика конфиденциальности" убран - он вёл
+            // на rustdesk.com/privacy.html, то есть на соглашение чужого
+            // продукта. Вернуть, когда появится собственный адрес (то же
+            // решение принято для экрана установки настольной версии).
           ],
         ),
       ],
@@ -1093,17 +1082,19 @@ void showThemeSettings(OverlayDialogManager dialogManager) async {
 void showAbout(OverlayDialogManager dialogManager) {
   dialogManager.show((setState, close, context) {
     return CustomAlertDialog(
-      title: Text(translate('About RustDesk')),
+      title: Text(translate('About NetControl')),
+      // Ребрендинг: ссылка на rustdesk.com убрана, вместо неё - адрес
+      // исходников, которого требует AGPL при раздаче собранного клиента
+      // (тот же kSourceCodeUrl, что и в настольной версии).
       content: Wrap(direction: Axis.vertical, spacing: 12, children: [
         Text('Version: $version'),
         InkWell(
             onTap: () async {
-              const url = 'https://rustdesk.com/';
-              await launchUrl(Uri.parse(url));
+              await launchUrl(Uri.parse(kSourceCodeUrl));
             },
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: 8),
-              child: Text('rustdesk.com',
+              child: Text(translate('Source Code'),
                   style: TextStyle(
                     decoration: TextDecoration.underline,
                   )),
