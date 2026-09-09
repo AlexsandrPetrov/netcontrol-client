@@ -425,7 +425,12 @@ impl RendezvousMediator {
         log::info!("start tcp: {}", hbb_common::websocket::check_ws(&host));
         let mut conn = connect_tcp(host.clone(), CONNECT_TIMEOUT).await?;
         let key = crate::get_key(true).await;
-        crate::secure_tcp(&mut conn, &key).await?;
+        // Открытый hbbs обмена ключами не поддерживает, и требовать его здесь
+        // значит запретить регистрацию по TCP вовсе - см. пояснение в
+        // client.rs::_start_inner. TCP тут запасной путь на случай, когда UDP
+        // закрыт (частая история в корпоративных сетях), и терять его из-за
+        // необязательного слоя шифрования нельзя.
+        crate::client::secure_rendezvous(&mut conn, &key).await;
         let mut rz = Self {
             addr: conn.local_addr().into_target_addr()?,
             host: host.clone(),

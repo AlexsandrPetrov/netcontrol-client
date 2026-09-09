@@ -199,7 +199,7 @@ pub fn get_key_state(key: enigo::Key) -> bool {
 /// Возвращает false, если сервер обмен ключами не поддерживает или не успел
 /// ответить. Это не ошибка: открытый hbbs так и работает, а звать его
 /// неисправным при каждом подключении - вводить пользователя в заблуждение.
-async fn secure_rendezvous(socket: &mut Stream, key: &str) -> bool {
+pub(crate) async fn secure_rendezvous(socket: &mut Stream, key: &str) -> bool {
     match timeout(KEY_EXCHANGE_TIMEOUT, secure_tcp(socket, key)).await {
         Ok(Ok(())) => true,
         Ok(Err(err)) => {
