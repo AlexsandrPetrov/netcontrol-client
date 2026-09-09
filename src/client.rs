@@ -101,6 +101,14 @@ const RESTART_REMOTE_DEVICE_GRACE: Duration = Duration::from_secs(5 * 60);
 pub const VIDEO_QUEUE_SIZE: usize = 120;
 const MAX_DECODE_FAIL_COUNTER: usize = 3;
 
+/// Сколько ждать, пока сервер поиска начнёт обмен ключами.
+///
+/// Обычный READ_TIMEOUT здесь - 18 секунд, и всё это время пользователь
+/// смотрит в чёрный экран. Сервер, который обмен поддерживает, шлёт своё
+/// сообщение сразу после установки соединения, так что ждать дольше
+/// секунды-двух смысла нет: молчание означает, что он этого не умеет.
+const KEY_EXCHANGE_TIMEOUT: u64 = 2_000;
+
 #[cfg(target_os = "linux")]
 pub const LOGIN_MSG_DESKTOP_NOT_INITED: &str = "Desktop env is not inited";
 pub const LOGIN_MSG_DESKTOP_SESSION_NOT_READY: &str = "Desktop session not ready";
@@ -184,6 +192,25 @@ pub fn get_key_state(key: enigo::Key) -> bool {
         return true;
     }
     ENIGO.lock().unwrap().get_key_state(key)
+}
+
+/// Пробует зашифровать канал до сервера поиска.
+///
+/// Возвращает false, если сервер обмен ключами не поддерживает или не успел
+/// ответить. Это не ошибка: открытый hbbs так и работает, а звать его
+/// неисправным при каждом подключении - вводить пользователя в заблуждение.
+async fn secure_rendezvous(socket: &mut Stream, key: &str) -> bool {
+    match timeout(KEY_EXCHANGE_TIMEOUT, secure_tcp(socket, key)).await {
+        Ok(Ok(())) => true,
+        Ok(Err(err)) => {
+            log::warn!("Key exchange with rendezvous server failed: {}", err);
+            false
+        }
+        Err(_) => {
+            log::info!("Rendezvous server does not support key exchange, continuing without it");
+            false
+        }
+    }
 }
 
 impl Client {
@@ -371,7 +398,7 @@ impl Client {
     async fn _start_inner(
         peer: String,
         key: String,
-        token: String,
+        mut token: String,
         conn_type: ConnType,
         interface: impl Interface,
         mut udp: (Option<Arc<UdpSocket>>, Option<Arc<Mutex<u16>>>),
@@ -428,9 +455,22 @@ impl Client {
 
         if !key.is_empty() && !token.is_empty() {
             // mainly for the security of token
-            secure_tcp(&mut socket, &key)
-                .await
-                .map_err(|e| anyhow!("Failed to secure tcp: {}", e))?;
+            //
+            // Открытый hbbs (rustdesk-server) обмена ключами не умеет вовсе:
+            // он молчит, пока клиент не заговорит первым, а здесь клиент как
+            // раз ждёт, что первым заговорит сервер. Раньше это валило
+            // подключение целиком - 18 секунд ожидания и "Failed to secure
+            // tcp: deadline has elapsed" при полностью живом сервере. В это
+            // условие попадают только вошедшие в учётную запись, оттого и
+            // выглядело как "у всех работает, а у меня нет".
+            //
+            // Продолжаем без шифрования канала до сервера поиска - ровно так
+            // же, как работают клиенты без входа в учётную запись. Но токен
+            // тогда не отправляем: шифровать его нечем, а открытый hbbs его
+            // всё равно не читает, так что терять нечего.
+            if !secure_rendezvous(&mut socket, &key).await {
+                token = Default::default();
+            }
         } else if let Some(udp) = udp.1.as_ref() {
             let tm = Instant::now();
             loop {
@@ -848,6 +888,9 @@ impl Client {
         let mut succeed = false;
         let mut uuid = "".to_owned();
         let mut ipv4 = true;
+        // Тот же сервер поиска, что и при обычном подключении - см. пояснение
+        // в _start_inner, почему неудача обмена ключами здесь не фатальна.
+        let mut token = token;
 
         for i in 1..=3 {
             // use different socket due to current hbbs implementation requiring different nat address for each attempt
@@ -855,9 +898,11 @@ impl Client {
                 .await
                 .with_context(|| "Failed to connect to rendezvous server")?;
 
-            if !key.is_empty() && !token.is_empty() {
-                // mainly for the security of token
-                secure_tcp(&mut socket, key).await?;
+            if !key.is_empty()
+                && !token.is_empty()
+                && !secure_rendezvous(&mut socket, key).await
+            {
+                token = "";
             }
 
             ipv4 = socket.local_addr().is_ipv4();
