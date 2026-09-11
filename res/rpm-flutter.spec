@@ -5,7 +5,14 @@ Summary:    Удалённый доступ NetControl
 License:    AGPL-3.0
 URL:        https://tehalex.ru
 Vendor:     NetControl
-Requires:   gtk3 libxcb libXfixes alsa-lib libva pam gstreamer1-plugins-base
+# Жёстких зависимостей по ИМЕНАМ пакетов здесь нет намеренно. Имена
+# различаются между дистрибутивами - живая находка на ALT Linux:
+# gstreamer1-plugins-base там называется иначе, и rpm отказывался ставить
+# пакет целиком из-за одного этого имени, хотя остальные семь разрешались.
+# Реальные зависимости от библиотек rpmbuild определяет сам и записывает
+# как libX11.so.6()(64bit) и т.п. - они работают в любом дистрибутиве,
+# потому что ищут файл, а не название пакета.
+Recommends: gtk3 libxcb libXfixes alsa-lib libva pam gstreamer1-plugins-base
 Recommends: libayatana-appindicator-gtk3 libxdo
 Provides:   libdesktop_drop_plugin.so()(64bit), libdesktop_multi_window_plugin.so()(64bit), libfile_selector_linux_plugin.so()(64bit), libflutter_custom_cursor_plugin.so()(64bit), libflutter_linux_gtk.so()(64bit), libscreen_retriever_plugin.so()(64bit), libtray_manager_plugin.so()(64bit), liburl_launcher_linux_plugin.so()(64bit), libwindow_manager_plugin.so()(64bit), libwindow_size_plugin.so()(64bit), libtexture_rgba_renderer_plugin.so()(64bit)
 
